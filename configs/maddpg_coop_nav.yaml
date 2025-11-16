@@ -1,0 +1,57 @@
+# Default configuration for Cooperative Navigation with MADDPG
+
+# Environment settings
+env:
+  name: cooperative_navigation
+  num_agents: 3
+  num_landmarks: 3
+  world_size: 2.0
+  max_steps: 100
+
+# Algorithm settings
+algorithm:
+  name: maddpg
+  hidden_dim: 256
+
+  # Learning rates
+  lr_actor: 0.0001
+  lr_critic: 0.001
+
+  # Discount and soft update
+  gamma: 0.99
+  tau: 0.01
+
+  # Replay buffer
+  buffer_size: 100000
+  batch_size: 256
+
+# Training settings
+training:
+  num_episodes: 10000
+  max_steps_per_episode: 100
+
+  # Exploration
+  noise_start: 0.5
+  noise_decay: 0.9999
+  noise_min: 0.05
+
+  # Update frequency
+  update_freq: 1
+
+  # Logging
+  print_freq: 100
+  save_freq: 1000
+  render_freq: 500
+  render: false
+
+# Output settings
+output:
+  log_dir: results
+  exp_name: maddpg_coop_nav
+  save_best: true
+
+# System settings
+system:
+  seed: 42
+  device: auto  # auto, cpu, or cuda
+  num_workers: 1
