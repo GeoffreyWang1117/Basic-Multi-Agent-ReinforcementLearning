@@ -45,7 +45,7 @@ Thumbs.db
 
 # Jupyter
 .ipynb_checkpoints/
-*.ipynb
+# *.ipynb  # Commented out to include tutorial notebooks
 
 # Old files
 *.py.bak
