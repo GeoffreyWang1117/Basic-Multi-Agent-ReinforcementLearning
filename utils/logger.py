@@ -1,19 +1,26 @@
 """
-Logging utilities for training
+Logging utilities for training with TensorBoard support
 """
 
 import os
 import json
 import numpy as np
-from typing import Dict, List
+from typing import Dict, List, Optional
 import matplotlib.pyplot as plt
 from datetime import datetime
 
+try:
+    from torch.utils.tensorboard import SummaryWriter
+    TENSORBOARD_AVAILABLE = True
+except ImportError:
+    TENSORBOARD_AVAILABLE = False
+    print("Warning: TensorBoard not available. Install with: pip install tensorboard")
+
 
 class Logger:
-    """Training logger"""
+    """Training logger with TensorBoard integration"""
 
-    def __init__(self, log_dir: str, exp_name: str = None):
+    def __init__(self, log_dir: str, exp_name: str = None, use_tensorboard: bool = True):
         if exp_name is None:
             exp_name = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -23,6 +30,16 @@ class Logger:
         self.metrics = {}
         self.episode_data = []
 
+        # TensorBoard writer
+        self.use_tensorboard = use_tensorboard and TENSORBOARD_AVAILABLE
+        self.writer: Optional[SummaryWriter] = None
+
+        if self.use_tensorboard:
+            tb_dir = os.path.join(self.log_dir, 'tensorboard')
+            self.writer = SummaryWriter(tb_dir)
+            print(f"TensorBoard logging to: {tb_dir}")
+            print(f"  View with: tensorboard --logdir {tb_dir}")
+
     def log_scalar(self, key: str, value: float, step: int):
         """Log a scalar value"""
         if key not in self.metrics:
@@ -30,6 +47,10 @@ class Logger:
 
         self.metrics[key]['steps'].append(step)
         self.metrics[key]['values'].append(value)
+
+        # Log to TensorBoard
+        if self.writer is not None:
+            self.writer.add_scalar(key, value, step)
 
     def log_episode(self, episode: int, total_reward: float, steps: int, info: Dict = None):
         """Log episode information"""
@@ -99,6 +120,31 @@ class Logger:
         with open(os.path.join(self.log_dir, 'config.json'), 'w') as f:
             json.dump(config, f, indent=2)
 
+    def log_histogram(self, key: str, values: np.ndarray, step: int):
+        """Log histogram to TensorBoard"""
+        if self.writer is not None:
+            self.writer.add_histogram(key, values, step)
+
+    def log_image(self, key: str, image: np.ndarray, step: int):
+        """Log image to TensorBoard"""
+        if self.writer is not None:
+            self.writer.add_image(key, image, step, dataformats='HWC')
+
+    def log_figure(self, key: str, figure: plt.Figure, step: int):
+        """Log matplotlib figure to TensorBoard"""
+        if self.writer is not None:
+            self.writer.add_figure(key, figure, step)
+
+    def log_text(self, key: str, text: str, step: int):
+        """Log text to TensorBoard"""
+        if self.writer is not None:
+            self.writer.add_text(key, text, step)
+
+    def log_hparams(self, hparams: Dict, metrics: Dict):
+        """Log hyperparameters and metrics"""
+        if self.writer is not None:
+            self.writer.add_hparams(hparams, metrics)
+
     def print_summary(self, window: int = 100):
         """Print training summary"""
         if len(self.episode_data) == 0:
@@ -115,3 +161,13 @@ class Logger:
         print(f"Average Steps: {avg_steps:.2f}")
         print(f"Total Episodes: {len(self.episode_data)}")
         print(f"{'='*50}\n")
+
+    def close(self):
+        """Close TensorBoard writer"""
+        if self.writer is not None:
+            self.writer.close()
+            print("TensorBoard writer closed")
+
+    def __del__(self):
+        """Cleanup"""
+        self.close()

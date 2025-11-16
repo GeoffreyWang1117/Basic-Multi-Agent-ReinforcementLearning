@@ -15,6 +15,7 @@ from environments.cooperative_navigation import CooperativeNavigation
 from environments.predator_prey import PredatorPrey
 from algorithms.maddpg import MADDPG
 from algorithms.comm_maddpg import CommMADDPG
+from algorithms.qmix import QMIX
 from utils.logger import Logger
 from utils.config import ConfigManager
 
@@ -77,6 +78,23 @@ def create_algorithm(config: ConfigManager, env_info: dict, device: str):
             batch_size=config.get('algorithm.batch_size', 256),
             device=device
         )
+    elif algo_name == 'qmix':
+        agent = QMIX(
+            num_agents=env_info['num_agents'],
+            state_dim=env_info['state_dim'],
+            action_dim=env_info['action_dim'],
+            hidden_dim=config.get('algorithm.hidden_dim', 128),
+            mixing_embed_dim=config.get('algorithm.mixing_embed_dim', 32),
+            lr=config.get('algorithm.lr', 5e-4),
+            gamma=config.get('algorithm.gamma', 0.99),
+            tau=config.get('algorithm.tau', 0.005),
+            buffer_size=config.get('algorithm.buffer_size', 100000),
+            batch_size=config.get('algorithm.batch_size', 256),
+            epsilon_start=config.get('algorithm.epsilon_start', 1.0),
+            epsilon_end=config.get('algorithm.epsilon_end', 0.05),
+            epsilon_decay=config.get('algorithm.epsilon_decay', 0.9995),
+            device=device
+        )
     else:
         raise ValueError(f"Unknown algorithm: {algo_name}")
 
@@ -117,7 +135,8 @@ def train(config: ConfigManager):
     # Create logger
     log_dir = config.get('output.log_dir', 'results')
     exp_name = config.get('output.exp_name', None)
-    logger = Logger(log_dir, exp_name)
+    use_tensorboard = config.get('output.use_tensorboard', True)
+    logger = Logger(log_dir, exp_name, use_tensorboard=use_tensorboard)
 
     # Save config
     logger.save_config(config.config)

@@ -15,10 +15,13 @@ This project demonstrates **production-ready** implementations of state-of-the-a
 ### Key Features
 
 ✅ **Classic CTDE Implementation**: MADDPG with centralized critic and decentralized actors
+✅ **Value Decomposition**: QMIX with monotonic mixing networks
 ✅ **Communication-Enhanced Learning**: CommNet and TarMAC-style agent communication
 ✅ **Multiple Environments**: Cooperative navigation and predator-prey scenarios
+✅ **TensorBoard Integration**: Real-time training monitoring and visualization
+✅ **Interactive Notebooks**: Jupyter tutorials for hands-on learning
 ✅ **Modular Architecture**: Clean, extensible codebase following software engineering best practices
-✅ **Comprehensive Logging**: TensorBoard integration and detailed metrics tracking
+✅ **Comprehensive Testing**: Unit tests for all core components
 ✅ **Ready for Resume**: Demonstrates algorithmic depth and engineering maturity
 
 ### What Makes This Project Stand Out
@@ -43,20 +46,40 @@ MultiAgent-CTDE-Lab/
 │
 ├── algorithms/            # MARL algorithms
 │   ├── maddpg.py             # Classic MADDPG (CTDE)
-│   └── comm_maddpg.py        # Communication-enhanced MADDPG
+│   ├── comm_maddpg.py        # Communication-enhanced MADDPG
+│   └── qmix.py               # QMIX value decomposition
 │
 ├── networks/              # Neural network modules
 │   ├── actor.py              # MLP and Recurrent actors
 │   ├── critic.py             # Centralized and Attention critics
-│   └── communication.py      # CommNet, TarMAC modules
+│   ├── communication.py      # CommNet, TarMAC modules
+│   └── qmix.py               # QMIX mixing and Q-networks
 │
 ├── utils/                 # Utilities
 │   ├── replay_buffer.py      # Experience replay with prioritization
-│   └── logger.py             # Training logger and visualization
+│   ├── logger.py             # Training logger with TensorBoard
+│   ├── config.py             # YAML configuration manager
+│   ├── visualization.py      # Advanced plotting tools
+│   └── compare_experiments.py # Experiment comparison
 │
 ├── experiments/           # Training and evaluation scripts
 │   ├── train.py              # Main training script
+│   ├── train_from_config.py  # Config-based training
 │   └── eval.py               # Evaluation and visualization
+│
+├── notebooks/             # Jupyter tutorials
+│   ├── 01_getting_started.ipynb
+│   └── 02_qmix_demonstration.ipynb
+│
+├── configs/               # YAML configurations
+│   ├── maddpg_coop_nav.yaml
+│   ├── comm_maddpg_coop_nav.yaml
+│   ├── qmix_coop_nav.yaml
+│   └── predator_prey_maddpg.yaml
+│
+├── tests/                 # Unit tests
+│   ├── test_environments.py
+│   └── test_algorithms.py
 │
 └── results/               # Training logs and checkpoints
 ```
@@ -74,6 +97,13 @@ MultiAgent-CTDE-Lab/
   - **CommNet**: Averaging-based communication across agents
   - **TarMAC**: Targeted attention-based communication
 - **Benefits**: Better coordination through information sharing
+
+#### 3. **QMIX** (Q-Mixing Network)
+- **Paradigm**: Value Decomposition for CTDE
+- **Key Idea**: Factorize global Q-value into individual Q-values with monotonicity constraint
+- **Architecture**: Individual Q-networks + Hypernetwork-based mixing
+- **Advantages**: Better credit assignment, works with discrete actions
+- **Monotonicity**: Ensures ∂Q_tot/∂Q_i ≥ 0 for all agents
 
 ---
 

@@ -1,0 +1,58 @@
+# Configuration for QMIX on Predator-Prey
+
+# Environment settings
+env:
+  name: predator_prey
+  num_predators: 4
+  num_prey: 1
+  world_size: 2.0
+  max_steps: 150
+
+# Algorithm settings
+algorithm:
+  name: qmix
+  hidden_dim: 128
+  mixing_embed_dim: 32
+
+  # Learning rate
+  lr: 0.0005
+
+  # Discount and soft update
+  gamma: 0.99
+  tau: 0.005
+
+  # Epsilon-greedy exploration
+  epsilon_start: 1.0
+  epsilon_end: 0.1
+  epsilon_decay: 0.9998
+
+  # Replay buffer
+  buffer_size: 100000
+  batch_size: 256
+
+# Training settings
+training:
+  num_episodes: 15000
+  max_steps_per_episode: 150
+
+  # Update frequency
+  update_freq: 1
+
+  # Logging
+  print_freq: 100
+  save_freq: 1000
+  render_freq: 500
+  render: false
+
+# Output settings
+output:
+  log_dir: results
+  exp_name: qmix_predator_prey
+  save_best: true
+  use_tensorboard: true
+
+# System settings
+system:
+  seed: 42
+  device: auto
+  num_workers: 1
